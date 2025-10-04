@@ -5,7 +5,11 @@
   <title>Student Management System</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
   <style>
-    body { font-family: Arial, sans-serif; background: #f2f7fa; margin: 0; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f2f7fa;
+    }
     nav {
       display: flex;
       background: #376ba6;
@@ -35,8 +39,25 @@
       padding: 25px 30px;
       box-shadow: 0 4px 25px rgba(0,0,0,0.1);
     }
-    .section { display: none; }
+    .section { display: none; border-radius: 10px; min-height: 600px; padding-top: 80px; }
     .section.active { display: block; }
+
+    /* Home background image, fit full image */
+    #home.section.active {
+      background-image: url('./student-management-services.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-color: #fff;
+      min-height: 600px;
+      width: 100%;
+    }
+    /* Other sections - no image background */
+    #markEntry.section.active,
+    #viewData.section.active {
+      background: none;
+    }
+
     h2 { color: #376ba6; margin-bottom: 20px; text-align: center; }
     form {
       display: flex;
@@ -44,6 +65,9 @@
       gap: 15px;
       justify-content: center;
       margin-bottom: 20px;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 15px;
+      border-radius: 8px;
     }
     input, select {
       padding: 8px;
@@ -66,38 +90,31 @@
       width: 100%;
       border-collapse: collapse;
       font-size: 14px;
+      background: rgba(255, 255, 255, 0.9);
     }
     th, td {
       padding: 10px;
       border: 1px solid #aac6f5;
       text-align: center;
-      background: #f9faff;
     }
     th { background: #e5f0fa; }
     tr:nth-child(even) td { background: #f2fbff; }
   </style>
 </head>
 <body>
-
 <nav>
   <button id="homeBtn" class="active"><i class="fas fa-home"></i> Home</button>
   <button id="markEntryBtn"><i class="fas fa-pen"></i> Mark Entry</button>
   <button id="viewDataBtn"><i class="fas fa-table"></i> Student Details</button>
 </nav>
-
 <div class="container">
   <section id="home" class="section active">
-    <h2>Welcome to the Student Management System</h2>
-    <p style="text-align:center;">Use the navigation buttons to enter marks or view student data.</p>
-  </section>
-
   <section id="markEntry" class="section">
     <h2>Enter Student Marks</h2>
     <form id="studentMarkForm">
       <input name="name" type="text" placeholder="Name" required/>
       <input name="regno" type="text" placeholder="Registration No" required/>
       <input name="address" type="text" placeholder="Address" required/>
-
       <select name="degree" required>
         <option value="" disabled selected>Select Degree</option>
         <option>B.Sc</option>
@@ -105,7 +122,6 @@
         <option>B.Com</option>
         <option>B.Tech</option>
       </select>
-
       <select name="course" required>
         <option value="" disabled selected>Select Course</option>
         <option>Computer Science</option>
@@ -115,12 +131,10 @@
         <option>Physics</option>
         <option>Mathematics</option>
       </select>
-
       <input name="totalmarks" type="number" placeholder="Total Marks" min="0" max="700" required/>
       <button type="submit">Add Student</button>
     </form>
   </section>
-
   <section id="viewData" class="section">
     <h2>Student Data</h2>
     <table>
@@ -140,20 +154,17 @@
     </table>
   </section>
 </div>
-
 <script>
   const sections = {
     home: document.getElementById('home'),
     markEntry: document.getElementById('markEntry'),
     viewData: document.getElementById('viewData')
   };
-
   const buttons = {
     homeBtn: document.getElementById('homeBtn'),
     markEntryBtn: document.getElementById('markEntryBtn'),
     viewDataBtn: document.getElementById('viewDataBtn')
   };
-
   function showSection(sectionName) {
     Object.keys(sections).forEach(key => {
       sections[key].classList.toggle('active', key === sectionName);
@@ -162,11 +173,9 @@
       buttons[btnKey].classList.toggle('active', btnKey.toLowerCase().includes(sectionName));
     });
   }
-
   buttons.homeBtn.onclick = () => showSection('home');
   buttons.markEntryBtn.onclick = () => showSection('markEntry');
   buttons.viewDataBtn.onclick = () => showSection('viewData');
-
   document.getElementById('studentMarkForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     const formData = new FormData(this);
@@ -178,13 +187,11 @@
       course: formData.get('course'),
       totalmarks: Number(formData.get('totalmarks'))
     };
-
     const response = await fetch('http://localhost:5000/api/students', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(data)
     });
-
     if (response.ok) {
       this.reset();
       loadStudentData();
@@ -193,16 +200,13 @@
       alert('Error adding student');
     }
   });
-
   async function loadStudentData() {
     try {
       const response = await fetch('http://localhost:5000/api/students');
       if (!response.ok) throw new Error('Network response was not ok');
       const students = await response.json();
-
       const tbody = document.getElementById('studentsTableBody');
       tbody.innerHTML = '';
-
       students.forEach(({ name, regno, address, degree, course, totalmarks }) => {
         const maxMarks = 700;
         const average = (totalmarks / maxMarks) * 100;
@@ -212,7 +216,6 @@
         else if (average >= 70) grade = 'C';
         else if (average >= 60) grade = 'D';
         else grade = 'F';
-
         const row = document.createElement('tr');
         row.innerHTML = `
           <td>${name}</td>
@@ -230,9 +233,7 @@
       alert('Failed to load student data. ' + error.message);
     }
   }
-
   window.onload = loadStudentData;
 </script>
-
 </body>
 </html>
